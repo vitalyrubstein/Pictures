@@ -17,7 +17,9 @@ class Report
   end
 end
 
+#FileUtils.move('/Volumes/Extreme/IMG_3558.JPG', '/Volumes/Extreme/pics')
 
+puts File.mtime('/Volumes/Extreme/pics/IMG_3558.JPG')
 
 =begin
 pic = "/Users/ruby/Documents/rt/pics3/IMG_3558.JPG"
