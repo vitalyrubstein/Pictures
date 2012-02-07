@@ -17,10 +17,18 @@ class Report
   end
 end
 
-#FileUtils.move('/Volumes/Extreme/IMG_3558.JPG', '/Volumes/Extreme/pics')
+#FileUtils.copy('/Volumes/Extreme/pics/IMG_3558.JPG', '/Volumes/Extreme')
+testpic ="/Volumes/Extreme/IMG_3558.JPG"
+testpic1 ="/Volumes/Extreme/pics/IMG_3558.JPG"
 
-puts File.mtime('/Volumes/Extreme/pics/IMG_3558.JPG')
+#date1 = File.mtime('/Volumes/Extreme/pics/IMG_3558.JPG').to_f
+#File.utime(date1,date1,testpic)
+#date2 = File.mtime(testpic)
 
+puts File.identical?(testpic,testpic1)
+
+#puts date1
+#puts date2
 =begin
 pic = "/Users/ruby/Documents/rt/pics3/IMG_3558.JPG"
 dir = "/Users/ruby/Documents/rt/pics3"

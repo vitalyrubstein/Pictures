@@ -61,7 +61,8 @@ def read_pic_fdate(filename)
   date = File.mtime(filename)
 end 
   
-def read_all_dates(dir_path) #creates hash filename > time(float)
+#creates hash filename > time(float)
+def read_all_dates(dir_path) 
   adates = {}
   read_pics_filenames(dir_path).each { |n| adates[n] = read_pic_date(n).to_f } 
   return adates
@@ -217,23 +218,60 @@ def resize_pics(new_width,dir_path,out_path)
   end
 end
 
+#resize one given pic (pic should include full path)
+def resize_pic(pic,new_width,out_path)
+  nw = new_width
+  n = File.basename(pic)
+  i = QuickMagick::Image.read(pic).first
+  w = i.width.to_f # Retrieves width in pixels
+  h = i.height.to_f # Retrieves height in pixels
+  pr = w/h
+  nh = nw/pr    
+  #puts "w:#{w} h:#{h} pr:#{pr} --> nw:#{nw} nh:#{nh}" #debuging info
+  i.resize "#{nw}x#{nh}!"
+  i.save "#{out_path}/#{n}"
+end
+
+#copy one given pic (pic should include full path) with keeping original file created and modified dates
+def copy_pic(pic,out_path)
+  pdate = read_pic_date(pic).to_f # get pic date
+  File.copy(pic, out_path) # copy pic
+  npic = out_path + '/' + File.basename(pic) # new path to pic
+  File.utime(pdate,pdate,npic) # set original date to pic
+end
+
+
 def copy_pics_files(method,dir_path,out_path)
   c = 0
-  i = 0 # for debuging
-  hash = method
+  htmlfile = "output.html"
+  #i = 0 # for debuging
+  hash = method # hash c > array of pics
   #hash2 = read_all_dates(dir_path) # this is for debuging.
   #td = calc_time_diff(dir_path) # for debuging
   make_output_dir(out_path)
-  
-  while c < hash.size
-    dir = "#{out_path}/#{c}"
-    make_output_dir(dir)
-    hash[c].each do |pic| 
-      File.copy(pic, dir)
-      #puts "#{pic} --> #{dir} --> #{hash2[pic]} -->#{td[i]}" # this is for debuging purposes. delete when not needed.
-      i += 1 # for debuging
+  File.open("#{out_path}/#{htmlfile}", 'a') do |f|
+  f << %&header\n& #insert html code before pictures
+    while c < hash.size
+      dir = "#{out_path}/#{c}" #path to output directory
+      rdir = dir + '/resized' #path to directory with resized pictures
+      make_output_dir(dir) # making output dir
+      make_output_dir(rdir) # making resized dir
+      f<< %&<div class="images" id="set#{c}">\n& #opening pictures set div
+      hash[c].each do |pic| 
+        #copying files
+        #copy_pic(pic,dir)
+        puts 'copied: ' + pic
+        #resizing pics
+        #resize_pic(pic,300,rdir)
+        #making html
+        f<< %&   <a target="_blank" href="../_images/#{c}/#{File.basename(pic)}"><img class="hidden" src="../_images/#{c}/resized/#{File.basename(pic)}" alt="#{File.basename(pic)}"></a>\n& 
+        #puts "#{pic} --> #{dir} --> #{hash2[pic]} -->#{td[i]}" # this is for debuging purposes. delete when not needed.
+        #i += 1 # for debuging
+      end
+      c +=1
+      f<< %&</div>\n& #closing pictures set div
     end
-    c +=1
+  f << %&footer\n& #insert html code after pictures
   end
 end
 
@@ -273,18 +311,18 @@ puts "--------------------------------------"
 puts "Working..."
 # ------------------------------------------  
 
+#Run this one>>>
+copy_pics_files(create_pics_moments(300,"/Volumes/Extreme/pics/**/*"),"/Volumes/Extreme/pics/**/*","/Volumes/Extreme/moments")
+
+#m = create_pics_moments(300, "/Volumes/Extreme/pics/**/*")
+#puts m.size
+
 #puts read_pic_edate("/Volumes/Extreme/similar/R/IMG_3567.JPG_resized.JPG")
-
-
-
 #delete_remove_similar($sec2,$dr,$out2)
-#copy_pics_files(create_pics_moments(18000,"/Volumes/Extreme/pics4/**/*"),"/Volumes/Extreme/pics4/**/*","/Volumes/Extreme/moments")
 #copy_pics_files(experement_similar(20,$dr),$dr,$out2)
-
 #copy_pics_files(create_pics_summary(100,"/Volumes/Extreme/moments/3/**/*"),"/Volumes/Extreme/moments/3/**/*","/Volumes/Extreme/summary")
 #resize_pics(300,"/Volumes/Extreme/similar/**/*","/Volumes/Extreme/similarR")
-produce_html("/Volumes/Extreme/similarR","/Volumes/Extreme/similarR","output.html","/Volumes/Extreme/similar/0")
-
+#produce_html("/Volumes/Extreme/similarR","/Volumes/Extreme/similarR","output.html","/Volumes/Extreme/similar/0")
 #create_pics_summary(300,"/Volumes/Extreme/moments/3/**/*")
 #display_time_diff("/Volumes/Extreme/moments/1/**/*")
 
